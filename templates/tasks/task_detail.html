@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% load custom_tags %}
+
+<div class="card" style="width: 18rem;">
+    <div class="card-header">
+        <li class="list-group-item"><h4>назва: {{ task.title }}</h4></li>
+    </div>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item"><h5>опис: </h5>{{ task.descrtiption }}</li>
+        <li class="list-group-item"><h5>статус: </h5>{{ task.status }}</li>
+        <li class="list-group-item"><h5>пріорітет: </h5>{{ task.priority }}</li>
+        <li class="list-group-item"><h5>дата створення: </h5>{{ task.due_date }}</li>
+        <li class="list-group-item"><h5>завдання зроблено: </h5>{{ task.creator }}</li>
+    </ul>
+</div>
+
+<!-- Коментарі -->
+<div class="comments mt-4">
+    <h3>Коментарі</h3>
+    {% for comment in task.comments.all %}
+        <div class="comment mb-2">
+            <p>{{ comment.content }}</p>
+            {% if comment.media %}
+                <div class="comment-media">
+                    {% if comment.media.url|endswith:".jpg" or comment.media.url|endswith:".png" or comment.media.url|endswith:".jpeg" %}
+                        <img src="{{ comment.media.url }}" alt="Зображення коментаря" style="max-width: 290px;">
+                    {% elif comment.media.url|endswith:".mp4" %}
+                        <video width="320" height="240" controls>
+                            <source src="{{ comment.media.url }}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    {% else %}
+                        <a href="{{ comment.media.url }}">Завантажити файл</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+            <small>Автор: {{ comment.author.username }}</small>
+        </div>
+        <hr>
+    {% empty %}
+        <p>Коментарі відсутні.</p>
+    {% endfor %}
+</div>
+
+<!-- Форма додавання коментаря -->
+<div class="add-comment mt-4">
+    <h4>Додати коментар</h4>
+    <form action="{% url 'task-detail' task.id %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ comment_form.as_p }}
+        <button type="submit" class="btn btn-primary">Відправити</button>
+    </form>
+</div>
+
+
+{% endblock %}
